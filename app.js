@@ -34,7 +34,7 @@ if (process.env.SCOPE) {
 }
 
 // On successful install, users will be redirected to /oauth-callback
-const REDIRECT_URI = `https://beststealdeals.herokuapp.com:${PORT}/oauth-callback`;
+const REDIRECT_URI = `https://beststealdeals.herokuapp.com/oauth-callback`;
 
 //===========================================================================//
 
