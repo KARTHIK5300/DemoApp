@@ -103,6 +103,8 @@ app.get('/test', (req, res) => {
   accessTokenCache.set("userData", {userId:userId,portalId:portalId});
   console.log(  accessTokenCache.getStats())
   console.log(accessTokenCache.get("userData"))
+  mykeys = accessTokenCache.keys();
+  console.log(mykeys)
   res.json({
     "responseVersion": "v3",
     "cardLabel": "Tickets",
@@ -114,7 +116,7 @@ app.get('/test', (req, res) => {
     "type": "IFRAME",
     "width": 640,
     "height": 480,
-    "url": "https://beststealdeals.herokuapp.com",
+    "url": "https://beststealdeals.herokuapp.com/iframe",
     "label": "test_label_secondary",
     "propertyNamesIncluded": []
     }
@@ -134,7 +136,7 @@ app.get('/test', (req, res) => {
     "width": 640,
     "label": "test_label_primary",
     "type": "IFRAME",
-    "url": "https://beststealdeals.herokuapp.com",
+    "url": "https://beststealdeals.herokuapp.com/iframe",
     "height": 480
     }
     },
@@ -323,12 +325,32 @@ app.get('/', async (req, res) => {
     }
     res.write(`<h4>portalId: ${JSON.stringify(userData)}</h4>`);
   } else {
+    mykeys = accessTokenCache.keys();
+    console.log(mykeys)
     res.write(`<a href="/install"><h3>Install the app</h3></a>`);
     res.write(`<a href="/outreachauth"><h3>Outreach Auth</h3></a>`)
   }
   res.end();
 });
-
+app.get('/iframe', async (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.write(`<h2>Iframe</h2>`);
+  if (isAuthorized(req.sessionID)) {
+    const accessToken = await getAccessToken(req.sessionID);
+    const contact = await getContact(accessToken);
+    res.write(`<h4>Access token: ${accessToken}</h4>`);
+    displayContactName(res, contact);
+  } 
+  mykeys = accessTokenCache.keys();
+  console.log(mykeys)
+  var userData = ""
+  if (accessTokenCache.get("userData")) {
+    console.log("getting data")
+    userData = accessTokenCache.get("userData")
+  }
+  res.write(`<h4>portalId: ${JSON.stringify(userData)}</h4>`);
+  res.end();
+});
 app.get('/error', (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h4>Error: ${req.query.msg}</h4>`);
