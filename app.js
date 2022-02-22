@@ -96,7 +96,7 @@ app.get('/outreachauth', (req, res) => {
 // Receive the authorization code from the OAuth 2.0 Server,
 // and process it based on the query parameters that are passed
 app.get('/test', (req, res) => {
-  console.log(JSON.stringify(req))
+  console.log(req)
   const userId = req.query.userId || "22";
   const portalId = req.query.portalId || "33";
   console.log(userId,portalId)
