@@ -5,10 +5,11 @@ const session = require('express-session');
 const opn = require('open');
 const app = express();
 const url = require('url')
+const jwt = require('jsonwebtoken')
 const refreshTokenStore = {};
 const accessTokenCache = new NodeCache({ deleteOnExpire: true });
 const PORT = process.env.PORT ||3000;
-
+const userList = ["karthikraja.r@indiumsoft.com","test@gmail.com"]
 // if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
 //     throw new Error('Missing CLIENT_ID or CLIENT_SECRET environment variable.')
 // }
@@ -95,16 +96,10 @@ app.get('/outreachauth', (req, res) => {
 // Step 3
 // Receive the authorization code from the OAuth 2.0 Server,
 // and process it based on the query parameters that are passed
-const tempToken = 'CIL__abyLxIHAIEBQAAAIRj27pgKIN3jxA0o2bUnMhQZBml_4DwuLHlaTzZ6UwSpbhdp5jowAAAAQQAAAATABwAAAAAAAACAAAAAAAAAAAwAIAAGAAAA4AEAAAAAAAAAAAAAABACQhSxyaD61SVmdKiRdg3s05Kdce0JHEoDbmExUgBaAA'
 app.get(`/test`, (req, res) => {
-  const userId = req.query.userId || "22";
-  const portalId = req.query.portalId || "33";
-  console.log(userId,portalId)
-  accessTokenCache.set("userData", {userId:userId,portalId:portalId});
-  console.log(  accessTokenCache.getStats())
-  console.log(accessTokenCache.get("userData"))
-  mykeys = accessTokenCache.keys();
-  console.log(mykeys)
+  const userEmail = req.query.userEmail
+  const user = { email: userEmail }
+  const accessToken = generateAccessToken(user)
   res.json({
     "responseVersion": "v3",
     "cardLabel": "Tickets",
@@ -136,7 +131,7 @@ app.get(`/test`, (req, res) => {
     "width": 640,
     "label": "test_label_primary",
     "type": "IFRAME",
-    "url": `https://beststealdeals.herokuapp.com/iframe/?accesstoken=${tempToken}`,
+    "url": `https://beststealdeals.herokuapp.com/iframe/?accesstoken=${accessToken}&userEmail=${userEmail}`,
     "height": 480
     }
     },
@@ -332,7 +327,7 @@ app.get('/', async (req, res) => {
   }
   res.end();
 });
-app.get('/iframe', async (req, res) => {
+app.get('/iframe', authenticateToken, async (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h2>Iframe</h2>`);
   console.log(req)
@@ -351,6 +346,23 @@ app.get('/iframe', async (req, res) => {
   res.write(`<h4>portalId: ${JSON.stringify(userData)}</h4>`);
   res.end();
 });
+
+function generateAccessToken(user) {
+  return jwt.sign(user, CLIENT_SECRET, { expiresIn: '4h' })
+}
+function authenticateToken(req, res, next) {
+    const token = req.query.accesstoken
+    const isUserAvail = userList.includes(req.query.userEmail)
+  if (token == null || !isUserAvail) return res.sendStatus(401)
+
+  jwt.verify(token, CLIENT_SECRET, (err, user) => {
+    console.log(err)
+    if (err) return res.sendStatus(403)
+    req.user = user
+    next()
+  })
+}
+
 app.get('/error', (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h4>Error: ${req.query.msg}</h4>`);
