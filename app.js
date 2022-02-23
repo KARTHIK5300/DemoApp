@@ -335,6 +335,7 @@ app.get('/', async (req, res) => {
 app.get('/iframe', async (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h2>Iframe</h2>`);
+  console.log(req)
   const accessToken = req.query.accesstoken
   console.log(accessToken)
     const contact = await getContact(accessToken);
