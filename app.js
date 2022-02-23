@@ -95,8 +95,8 @@ app.get('/outreachauth', (req, res) => {
 // Step 3
 // Receive the authorization code from the OAuth 2.0 Server,
 // and process it based on the query parameters that are passed
-app.get('/test', (req, res) => {
-  console.log(req)
+const tempToken = 'CIL__abyLxIHAIEBQAAAIRj27pgKIN3jxA0o2bUnMhQZBml_4DwuLHlaTzZ6UwSpbhdp5jowAAAAQQAAAATABwAAAAAAAACAAAAAAAAAAAwAIAAGAAAA4AEAAAAAAAAAAAAAABACQhSxyaD61SVmdKiRdg3s05Kdce0JHEoDbmExUgBaAA'
+app.get(`/test`, (req, res) => {
   const userId = req.query.userId || "22";
   const portalId = req.query.portalId || "33";
   console.log(userId,portalId)
@@ -136,7 +136,7 @@ app.get('/test', (req, res) => {
     "width": 640,
     "label": "test_label_primary",
     "type": "IFRAME",
-    "url": "https://beststealdeals.herokuapp.com/iframe",
+    "url": `https://beststealdeals.herokuapp.com/iframe/?accesstoken=${tempToken}`,
     "height": 480
     }
     },
@@ -335,12 +335,11 @@ app.get('/', async (req, res) => {
 app.get('/iframe', async (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h2>Iframe</h2>`);
-  if (isAuthorized(req.sessionID)) {
-    const accessToken = await getAccessToken(req.sessionID);
+  const accessToken = req.query.accesstoken
+  console.log(accessToken)
     const contact = await getContact(accessToken);
     res.write(`<h4>Access token: ${accessToken}</h4>`);
     displayContactName(res, contact);
-  } 
   mykeys = accessTokenCache.keys();
   console.log(mykeys)
   var userData = ""
