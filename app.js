@@ -97,6 +97,7 @@ app.get('/outreachauth', (req, res) => {
 // Receive the authorization code from the OAuth 2.0 Server,
 // and process it based on the query parameters that are passed
 app.get(`/test`, (req, res) => {
+  console.log(">>>>>>>>>>>>>>>>>>>>>>",req.headers)
   const userEmail = req.query.userEmail
   const user = { email: userEmail }
   const accessToken = generateAccessToken(user)
@@ -330,7 +331,6 @@ app.get('/', async (req, res) => {
 app.get('/iframe', authenticateToken, async (req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.write(`<h2>Iframe</h2>`);
-  console.log(req)
   const accessToken = req.query.accesstoken
   console.log(accessToken)
     const contact = await getContact(accessToken);
